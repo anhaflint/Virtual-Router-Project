@@ -29,35 +29,55 @@ module.exports = {
 						{
 							machine.setName(data[1]);
 						} else {
-							console.log('ERROR : name is blank -- "type help to display the help section"');
+							console.log('ERROR : name is blank -- type help to display the help section');
 						}
 						break;
-					case "interface" : 
+					case "int" : 
 						if(typeof data[1] !== 'undefined' && typeof data[2] === 'undefined') 
 						{
 							machine.addInterface(data[1]);
 						} else if(typeof data[2] !== 'undefined') { 
 							machine.addInterface(data[1], data[2]);
 						} else {
-							console.log('ERROR : name is blank -- "type help to display the help section"');
+							console.log('ERROR : name is blank -- type help to display the help section');
 						}
 						break;
 					case "set":
-						if(data[1] !== 'undefined' && data[2] !== 'undefined') 
+						if(typeof data[1] !== 'undefined' && typeof data[2] !== 'undefined') 
 						{
-							machine.getInterface(data[1]).set(data[2]);
+							if(data[1] === "up" || data[1] === "down") {
+								machine.getInterfaceN(data[1]).set(data[2]);
+							} else if (data[1] === "int" && data[2] !== 'undefined' && data[3] !== 'undefined') {
+								machine.getInterfaceN(data[2]).setIP(data[3]);
+							}
+						}
+						break;
+					//setListen <interface> <ip>
+					case "setListen" :
+						if(typeof data[1] !== 'undefined' && typeof data[2] !== 'undefined') {
+							//Check this interface
+							var interface = machine.getInterfaceN(data[1]);
+							//Check the other interfaces
+							var otherInterface = machine.getInterfaceI(data[2]);
+							if(interface.ip !== data[2] && otherInterface === null) {
+								interface.setListen(data[2]);
+							} else {
+								console.log("You are trying to connect the interface to itself");
+							}
 						}
 					case "mode" : 
 						if(data[2] === '-router') 
 						{
 							machine.setRouter();
-						} else {
+						} else if(data[2] === '-client'){
 							machine.setClient();
 						}
 						break;
+					//ping <ip> <message>
 					case "ping" :
 						if(typeof data[1] !== 'undefined') 
-						{
+						{	
+							//Find the interface listening to the ip address
 							if(typeof data[2] === 'undefined') 
 							{
 								machine.connect(parseInt(data[1]), "ping");
@@ -72,10 +92,14 @@ module.exports = {
 							+ '\nthis is a simple command line interface for nodejs Virtual Router'
 							+ '\n------------------------------------------------------------------'
 							+ '\n use : '
+							+ '\n type quit to exit'
 							+ '\n   mode -router to set the machine as a router' 
 							+ '\n   mode -client to set the machine as a client'
 							+ '\n   setName to set the name of the machine'
-							+ '\n   interface <name> <ip> to set a new interface named <name> with the given ip address' 
+							+ '\n   setListen <interface name> <ip> to set the distant ip address'
+							+ '\n   int <name> <ip> to set a new interface named <name>'
+							+ '\n       with the given ip address' 
+							+ '\n   set int <interface name> <ip> to set new ip'
 							+ '\n\n\n'
 						);
 						break;
