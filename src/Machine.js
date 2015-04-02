@@ -7,10 +7,7 @@ module.exports = function Machine() {
 	this.name = "";
 	this.interfaces = [];
 	this.tabAddr = [];
-	this.socket = this.socket = new net.Socket({
-			readable: true,
-			writable: true
-		});
+	
 
 	this.setName = function(name) {
 		this.name = name;
@@ -23,15 +20,32 @@ module.exports = function Machine() {
 		this.printInterfaces();
 	}
 
-	this.getInterface = function(name) {
+	this.getInterfaceN = function(name) {
 		for(var i in this.interfaces) {
 			if(this.interfaces[i].name == name) 
 			{
 				return this.interfaces[i];
 			} 
 		}
-		console.log('ERROR : interface does not exist');
-		this.printInterfaces();
+		return null;
+	}
+
+	this.getInterfaceI = function(ip) {
+		for(var i in this.interfaces) {
+			if(this.interfaces[i].ip === ip) {
+				return this.interfaces[i];
+			}
+		}
+		return null;
+	}
+
+	this.getListenerInterface = function(ip) {
+		for(var i in this.interfaces) {
+			if(this.interfaces[i].listen == ip) {
+				return this.interfaces[i];
+			}
+		}
+		return null;
 	}
 
 	this.printInterfaces = function() {
@@ -50,10 +64,14 @@ module.exports = function Machine() {
 	}
 
 	this.connect = function(ip, message) {
-		this.socket.connect(ip);
-		console.log(message);
-		if(typeof message !== 'undefined') {
-			this.socket.write(message);
+		var interface = this.getListenerInterface(ip);
+		if(interface !== null) {
+			interface.socket.connect(ip);
+			if(typeof message !== 'undefined') {
+				interface.socket.write(message);
+			}
+		} else {
+			console.log('Failed to ping - please check the connexion');
 		}
 	}
 }

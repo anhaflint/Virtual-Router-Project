@@ -6,7 +6,11 @@ module.exports = function Interface(name, ip) {
 	this.ip = "";
 	this.server = null;
 	this.mode = "down";
-
+	this.listen = "";
+	this.socket = new net.Socket({
+			readable: true,
+			writable: true
+		});
 	
 
 	this.setIP = function(ip) {
@@ -22,6 +26,11 @@ module.exports = function Interface(name, ip) {
 		this.mode = mode ;
 	}
 
+	this.setListen = function(ip) {
+		this.listen = ip;
+		this.print();
+	}
+
 	this.print = function() {
 		console.log(
 			'{ \n name : '
@@ -30,11 +39,15 @@ module.exports = function Interface(name, ip) {
 			+ ' ip : '
 			+ this.ip
 			+ '\n'
+			+ ' listening to : '
+			+ this.listen
+			+ '\n'
 			+ ' mode : ' 
 			+ this.mode
 			+ '\n}'
 			)
 	}
+
 
 	if (typeof ip !== 'undefined') 
 	{
@@ -45,7 +58,6 @@ module.exports = function Interface(name, ip) {
 			});
 		}); 
 		this.server.listen(this.ip, function() {
-			console.log("interface up");
 		});
 		this.set("up");
 	}
