@@ -33,11 +33,8 @@ module.exports = {
 						}
 						break;
 					case "int" : 
-						if(typeof data[1] !== 'undefined' && typeof data[2] === 'undefined') 
-						{
-							machine.addInterface(data[1]);
-						} else if(typeof data[2] !== 'undefined') { 
-							machine.addInterface(data[1], data[2]);
+						if(typeof data[1] !== 'undefined' && typeof data[2] !== 'undefined') { 
+							machine.addInterface(data[1], data[2], machine);
 						} else {
 							console.log('ERROR : name is blank -- type help to display the help section');
 						}
@@ -49,6 +46,8 @@ module.exports = {
 								machine.getInterfaceN(data[1]).set(data[2]);
 							} else if (data[1] === "int" && data[2] !== 'undefined' && data[3] !== 'undefined') {
 								machine.getInterfaceN(data[2]).setIP(data[3]);
+							} else if (data[1] === "rp") {
+								machine.setRP();
 							}
 						}
 						break;
@@ -65,6 +64,10 @@ module.exports = {
 								console.log("You are trying to connect the interface to itself");
 							}
 						}
+						break;
+					case "routes" :
+						console.log(machine.neighTable);
+						break;
 					case "mode" : 
 						if(data[2] === '-router') 
 						{

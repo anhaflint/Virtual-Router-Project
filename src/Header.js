@@ -2,13 +2,13 @@
  * Source file for datagramm header
  */
 
-module.exports = function Header() {
-	this.type = null;
-	this.src = null;
-	this.dest = null;
+module.exports = function Header(type, src, dest) {
+	this.type = type;
+	this.src = src;
+	this.dest = dest;
 
 	this.setType = function(type) {
-		it(typeof type !== 'undefined' && type >= 0 && type <= 2) {
+		if(typeof type !== 'undefined' && type >= 0 && type <= 2) {
 			this.type = type;
 		}
 	}
@@ -23,5 +23,9 @@ module.exports = function Header() {
 		if(typeof dest !== 'undefined') {
 			this.dest = dest;
 		}
+	}
+
+	this.toString = function() {
+		return this.type + '-' + this.src + '-' + this.dest;
 	}
 }

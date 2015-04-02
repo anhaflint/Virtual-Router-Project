@@ -2,9 +2,16 @@
  * Source file for hello message
  */
 
-var Header = require('./Header');
+var Message 	= require('./Message');
+var inherits 	= require('util').inherits;
 
-
-module.exports = function Hello() {
-
+function Hello(type, src, dest) {
+	Message.call(this, type, src, dest);
+	this.data = "30";
 }
+
+inherits(Hello, Message);
+
+module.exports = Hello;
+
+

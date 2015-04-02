@@ -11,11 +11,14 @@ var crawler = require('./Crawler');
 
 var args = process.argv.slice(2);
 
-var machine = new Machine();
-crawler.ask(machine);
+
 
 if(args[0] === 'client') {
-	machine.setClient();
+	var machine = new Machine('client');
 } else if (args[0] === 'router') {
-	machine.setRouter();
+	var machine = new Machine('router');
+} else {
+	console.log("Please specify machine mode");
 }
+
+crawler.ask(machine);

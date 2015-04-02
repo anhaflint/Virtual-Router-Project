@@ -1,7 +1,10 @@
 var net = require('net');
+var StringDecoder = require('string_decoder').StringDecoder;
+var decoder = new StringDecoder('utf8');
 
 //Constructeur de la classe Interface
-module.exports = function Interface(name, ip) {
+module.exports = function Interface(name, ip, machine) {
+	this.machine = machine;
 	this.name = name;
 	this.ip = "";
 	this.server = null;
@@ -29,6 +32,7 @@ module.exports = function Interface(name, ip) {
 	this.setListen = function(ip) {
 		this.listen = ip;
 		this.print();
+		this.machine.helloMessage(this);
 	}
 
 	this.print = function() {
@@ -54,7 +58,7 @@ module.exports = function Interface(name, ip) {
 		this.setIP(ip);
 		this.server = net.createServer(function(c) {
 			c.on('data', function(data) {
-				console.log('data ' + c.remoteAddress + ' : ' + data);
+				machine.receiveHello(decoder.write(data).split("-").splice(0));
 			});
 		}); 
 		this.server.listen(this.ip, function() {

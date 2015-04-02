@@ -1,21 +1,24 @@
 //Constructeur de la classe Machine
 var Interface = require('./Interface.js');
 var net = require('net');
+var Hello = require('./Hello');
 
-module.exports = function Machine() {
-	this.mode = "client";
-	this.name = "";
+module.exports = function Machine(mode) {
+	this.mode = mode;
+	this.name = '';
 	this.interfaces = [];
-	this.tabAddr = [];
-	
+	this.routingTable = [];
+	this.neighTable = [];
+	this.rp = false;
+
 
 	this.setName = function(name) {
 		this.name = name;
 	}
 
-	this.addInterface = function(name, ip) {
+	this.addInterface = function(name, ip, machine) {
 		if(typeof ip !== 'undefined') {
-			this.interfaces.push(new Interface(name, ip));
+			this.interfaces.push(new Interface(name, ip, machine));
 		}
 		this.printInterfaces();
 	}
@@ -28,6 +31,12 @@ module.exports = function Machine() {
 			} 
 		}
 		return null;
+	}
+
+	this.setRP = function() {
+		if(this.mode == 'router') {
+			this.rp = true;
+		}
 	}
 
 	this.getInterfaceI = function(ip) {
@@ -56,11 +65,11 @@ module.exports = function Machine() {
 	}
 
 	this.setRouter = function() {
-		this.mode = "router";
+		this.mode = 'router';
 	}
 
 	this.setClient = function() {
-		this.mode = "client";
+		this.mode = 'client';
 	}
 
 	this.connect = function(ip, message) {
@@ -73,5 +82,33 @@ module.exports = function Machine() {
 		} else {
 			console.log('Failed to ping - please check the connexion');
 		}
+	}
+
+	this.helloMessage = function(interface) {
+		console.log("Discovering network...");
+		var neighbor = [interface.listen, interface.ip];
+		var message = new Hello( 0, interface.ip, interface.listen);
+
+		this.neighTable.push(neighbor);
+		console.log(this.neighTable);
+		this.connect(interface.listen, message.toString());
+	}
+
+	this.receiveHello = function(message) {
+		//[dest, src]
+		var newNeighbor = [message[1], message[2]];
+		this.getInterfaceI(message[2]).listen = message[1];
+		if(message[1] !== 'undefined') {
+			this.neighTable.push(newNeighbor);
+		}
+		for(var i in this.neighTable) {
+			console.log(this.neighTable[i][0]);
+			if(message[1] !== this.neighTable[i][0] && this.getListenerInterface(this.neighTable[i][0]) !== null) {
+				console.log("coucou");
+				var message = new Hello(0, message[1], this.neighTable[i][0]);
+				this.connect(this.neighTable[i][0], message.toString());
+			}
+		}
+		console.log(this.neighTable);
 	}
 }
