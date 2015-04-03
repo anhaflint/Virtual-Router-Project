@@ -5,12 +5,27 @@ var Hello = require('./Hello');
 
 module.exports = function Machine(mode) {
 	this.mode = mode;
-	this.name = '';
+	this.name = 'machine';
 	this.interfaces = [];
 	this.routingTable = [];
 	this.neighTable = [];
 	this.rp = false;
 
+	this.print = function() {
+		console.log(
+			'{ \n name : '
+			+ this.name
+			+ '\n'
+			+ ' rp : '
+			+ this.rp
+			+ '\n'
+			+ ' mode : ' 
+			+ this.mode
+			+ '\n}'
+			);
+		console.log(' interfaces : ');
+		this.printInterfaces();
+	}
 
 	this.setName = function(name) {
 		this.name = name;
@@ -73,7 +88,7 @@ module.exports = function Machine(mode) {
 	}
 
 	this.connect = function(ip, message) {
-		var interface = this.getListenerInterface(ip);
+		var interface = this.getInterfaceI(this.searchTable(ip));
 		if(interface !== null) {
 			interface.socket.connect(ip);
 			if(typeof message !== 'undefined') {
@@ -82,6 +97,15 @@ module.exports = function Machine(mode) {
 		} else {
 			console.log('Failed to ping - please check the connexion');
 		}
+	}
+
+	this.searchTable = function(ip) {
+		for(var i in this.neighTable) {
+			if(this.neighTable[i][0] == ip) {
+				return this.neighTable[i][1];
+			}
+		}
+		return null;
 	}
 
 	this.helloMessage = function(interface) {
@@ -102,9 +126,7 @@ module.exports = function Machine(mode) {
 			this.neighTable.push(newNeighbor);
 		}
 		for(var i in this.neighTable) {
-			console.log(this.neighTable[i][0]);
 			if(message[1] !== this.neighTable[i][0] && this.getListenerInterface(this.neighTable[i][0]) !== null) {
-				console.log("coucou");
 				var message = new Hello(0, message[1], this.neighTable[i][0]);
 				this.connect(this.neighTable[i][0], message.toString());
 			}

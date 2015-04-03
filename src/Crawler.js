@@ -89,6 +89,9 @@ module.exports = {
 							}
 						}
 						break;
+					case "status" :
+						machine.print();
+						break;
 					case "help" :
 						console.log(
 							'\n\n\n------------------------------------------------------------------'

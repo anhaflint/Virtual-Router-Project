@@ -58,7 +58,12 @@ module.exports = function Interface(name, ip, machine) {
 		this.setIP(ip);
 		this.server = net.createServer(function(c) {
 			c.on('data', function(data) {
-				machine.receiveHello(decoder.write(data).split("-").splice(0));
+				var message = decoder.write(data).split("-");
+				if(message[0] == '0') {
+					machine.receiveHello(message.splice(0));
+				} else {
+					console.log("data : " + message.join("-"));
+				}
 			});
 		}); 
 		this.server.listen(this.ip, function() {
